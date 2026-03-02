@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # =============================================================================
-# ThachPham Offload & CDN for Cloudflare R2 Build Script
+# TP Media Offload & Edge CDN Build Script
 # =============================================================================
 
 set -e
 
 # Configuration
-PLUGIN_SLUG="thachpham-offload-cdn-cloudflare-r2"
-MAIN_PLUGIN_FILE="cloudflare-r2-offload-cdn.php"
+PLUGIN_SLUG="tp-media-offload-edge-cdn"
+MAIN_PLUGIN_FILE="tp-media-offload-edge-cdn.php"
 PLUGIN_VERSION=$(grep -m1 "Version:" "$MAIN_PLUGIN_FILE" 2>/dev/null | sed 's/.*Version:[[:space:]]*//' | tr -d ' ' || echo "1.0.0")
 BUILD_DIR="dist"
 SVN_DIR="svn"
-ZIP_FILE="thachpham-offload-cdn-cloudflare-r2-${PLUGIN_VERSION}.zip"
+ZIP_FILE="tp-media-offload-edge-cdn-${PLUGIN_VERSION}.zip"
 
 # Colors
 RED='\033[0;31m'
@@ -332,7 +332,7 @@ cmd_version() {
 # Show help
 cmd_help() {
     echo ""
-    echo "ThachPham Offload & CDN for Cloudflare R2 Build Script"
+    echo "TP Media Offload & Edge CDN Build Script"
     echo ""
     echo "Usage: ./scripts/build.sh [command]"
     echo ""

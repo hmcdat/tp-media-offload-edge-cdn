@@ -77,6 +77,7 @@ PLUGIN_SLUG_UPPER=$(echo "$PLUGIN_SLUG_UNDERSCORE" | tr '[:lower:]' '[:upper:]')
 
 echo ""
 echo -e "${YELLOW}Will replace:${NC}"
+echo "  tp-media-offload-edge-cdn      → $PLUGIN_SLUG"
 echo "  cloudflare-r2-offload-cdn      → $PLUGIN_SLUG"
 echo "  cloudflare_r2_offload_cdn      → $PLUGIN_SLUG_UNDERSCORE"
 echo "  CLOUDFLARE_R2_OFFLOAD_CDN      → $PLUGIN_SLUG_UPPER"
@@ -131,6 +132,9 @@ replace_in_files "cloudflare_r2_offload_cdn" "$PLUGIN_SLUG_UNDERSCORE"
 # Replace uppercase version
 replace_in_files "CLOUDFLARE_R2_OFFLOAD_CDN" "$PLUGIN_SLUG_UPPER"
 
+# Replace current plugin slug (new naming).
+replace_in_files "tp-media-offload-edge-cdn" "$PLUGIN_SLUG"
+
 # Replace hyphenated version
 replace_in_files "cloudflare-r2-offload-cdn" "$PLUGIN_SLUG"
 
@@ -141,29 +145,29 @@ replace_in_files "CFR2OffLoad" "$NAMESPACE"
 replace_in_files "CloudFlare R2 Offload & CDN" "$PLUGIN_NAME"
 
 # Rename main plugin file
-if [ -f "cloudflare-r2-offload-cdn.php" ]; then
+if [ -f "tp-media-offload-edge-cdn.php" ]; then
     echo "Renaming main plugin file..."
-    mv "cloudflare-r2-offload-cdn.php" "${PLUGIN_SLUG}.php"
+    mv "tp-media-offload-edge-cdn.php" "${PLUGIN_SLUG}.php"
 fi
 
 # Rename language files
-if [ -f "languages/cloudflare-r2-offload-cdn.pot" ]; then
-    mv "languages/cloudflare-r2-offload-cdn.pot" "languages/${PLUGIN_SLUG}.pot"
+if [ -f "languages/tp-media-offload-edge-cdn.pot" ]; then
+    mv "languages/tp-media-offload-edge-cdn.pot" "languages/${PLUGIN_SLUG}.pot"
 fi
 
 # Update docker-compose container names
 if [ -f "docker-compose.yml" ]; then
     echo "Updating Docker container names..."
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/cloudflare-r2-offload-cdn-wp/${PLUGIN_SLUG}-wp/g" docker-compose.yml
-        sed -i '' "s/cloudflare-r2-offload-cdn-mysql/${PLUGIN_SLUG}-mysql/g" docker-compose.yml
-        sed -i '' "s/cloudflare-r2-offload-cdn-pma/${PLUGIN_SLUG}-pma/g" docker-compose.yml
-        sed -i '' "s/cloudflare-r2-offload-cdn-network/${PLUGIN_SLUG}-network/g" docker-compose.yml
+        sed -i '' "s/tp-media-offload-edge-cdn-wp/${PLUGIN_SLUG}-wp/g" docker-compose.yml
+        sed -i '' "s/tp-media-offload-edge-cdn-mysql/${PLUGIN_SLUG}-mysql/g" docker-compose.yml
+        sed -i '' "s/tp-media-offload-edge-cdn-pma/${PLUGIN_SLUG}-pma/g" docker-compose.yml
+        sed -i '' "s/tp-media-offload-edge-cdn-network/${PLUGIN_SLUG}-network/g" docker-compose.yml
     else
-        sed -i "s/cloudflare-r2-offload-cdn-wp/${PLUGIN_SLUG}-wp/g" docker-compose.yml
-        sed -i "s/cloudflare-r2-offload-cdn-mysql/${PLUGIN_SLUG}-mysql/g" docker-compose.yml
-        sed -i "s/cloudflare-r2-offload-cdn-pma/${PLUGIN_SLUG}-pma/g" docker-compose.yml
-        sed -i "s/cloudflare-r2-offload-cdn-network/${PLUGIN_SLUG}-network/g" docker-compose.yml
+        sed -i "s/tp-media-offload-edge-cdn-wp/${PLUGIN_SLUG}-wp/g" docker-compose.yml
+        sed -i "s/tp-media-offload-edge-cdn-mysql/${PLUGIN_SLUG}-mysql/g" docker-compose.yml
+        sed -i "s/tp-media-offload-edge-cdn-pma/${PLUGIN_SLUG}-pma/g" docker-compose.yml
+        sed -i "s/tp-media-offload-edge-cdn-network/${PLUGIN_SLUG}-network/g" docker-compose.yml
     fi
 fi
 

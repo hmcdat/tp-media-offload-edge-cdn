@@ -562,7 +562,7 @@ if ( ! class_exists( 'WP_REST_Response' ) ) {
 }
 
 define( 'CFR2_VERSION', '1.0.0' );
-define( 'CFR2_FILE', dirname( __DIR__ ) . '/cloudflare-r2-offload-cdn.php' );
+define( 'CFR2_FILE', dirname( __DIR__ ) . '/tp-media-offload-edge-cdn.php' );
 define( 'CFR2_PATH', dirname( __DIR__ ) . '/' );
-define( 'CFR2_URL', 'http://example.com/wp-content/plugins/cloudflare-r2-offload-cdn/' );
-define( 'CFR2_BASENAME', 'cloudflare-r2-offload-cdn/cloudflare-r2-offload-cdn.php' );
+define( 'CFR2_URL', 'http://example.com/wp-content/plugins/tp-media-offload-edge-cdn/' );
+define( 'CFR2_BASENAME', 'tp-media-offload-edge-cdn/tp-media-offload-edge-cdn.php' );

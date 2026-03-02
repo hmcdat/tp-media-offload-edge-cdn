@@ -208,13 +208,13 @@ class BulkOperationAjaxHandler {
 	private function get_cancel_message( string $action ): string {
 		switch ( $action ) {
 			case QueueAction::OFFLOAD:
-				return __( 'Bulk offload cancelled.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'Bulk offload cancelled.', 'tp-media-offload-edge-cdn' );
 			case QueueAction::RESTORE:
-				return __( 'Bulk restore cancelled.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'Bulk restore cancelled.', 'tp-media-offload-edge-cdn' );
 			case QueueAction::DELETE_LOCAL:
-				return __( 'Bulk delete cancelled.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'Bulk delete cancelled.', 'tp-media-offload-edge-cdn' );
 			default:
-				return __( 'Operation cancelled.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'Operation cancelled.', 'tp-media-offload-edge-cdn' );
 		}
 	}
 
@@ -227,13 +227,13 @@ class BulkOperationAjaxHandler {
 	private function get_done_message( string $action ): string {
 		switch ( $action ) {
 			case QueueAction::OFFLOAD:
-				return __( 'All items processed.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'All items processed.', 'tp-media-offload-edge-cdn' );
 			case QueueAction::RESTORE:
-				return __( 'All items restored.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'All items restored.', 'tp-media-offload-edge-cdn' );
 			case QueueAction::DELETE_LOCAL:
-				return __( 'All local files deleted.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'All local files deleted.', 'tp-media-offload-edge-cdn' );
 			default:
-				return __( 'Operation completed.', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'Operation completed.', 'tp-media-offload-edge-cdn' );
 		}
 	}
 
@@ -257,7 +257,7 @@ class BulkOperationAjaxHandler {
 			array( '%s' )
 		);
 
-		wp_send_json_success( array( 'message' => __( 'Bulk offload cancelled.', 'thachpham-offload-cdn-cloudflare-r2' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Bulk offload cancelled.', 'tp-media-offload-edge-cdn' ) ) );
 	}
 
 	/**
@@ -307,7 +307,7 @@ class BulkOperationAjaxHandler {
 		$item_id = isset( $_POST['item_id'] ) ? absint( $_POST['item_id'] ) : 0;
 
 		if ( ! $item_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid item ID.', 'thachpham-offload-cdn-cloudflare-r2' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Invalid item ID.', 'tp-media-offload-edge-cdn' ) ) );
 		}
 
 		global $wpdb;
@@ -329,9 +329,9 @@ class BulkOperationAjaxHandler {
 			// Clear stats cache.
 			delete_transient( TransientKeys::DASHBOARD_STATS );
 
-			wp_send_json_success( array( 'message' => __( 'Item cancelled.', 'thachpham-offload-cdn-cloudflare-r2' ) ) );
+			wp_send_json_success( array( 'message' => __( 'Item cancelled.', 'tp-media-offload-edge-cdn' ) ) );
 		} else {
-			wp_send_json_error( array( 'message' => __( 'Could not cancel item. It may already be processing.', 'thachpham-offload-cdn-cloudflare-r2' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not cancel item. It may already be processing.', 'tp-media-offload-edge-cdn' ) ) );
 		}
 	}
 
@@ -364,7 +364,7 @@ class BulkOperationAjaxHandler {
 			array(
 				'message'   => sprintf(
 					/* translators: %d: number of items cancelled */
-					__( '%d pending items cancelled.', 'thachpham-offload-cdn-cloudflare-r2' ),
+					__( '%d pending items cancelled.', 'tp-media-offload-edge-cdn' ),
 					$updated ? $updated : 0
 				),
 				'cancelled' => $updated ? $updated : 0,
@@ -493,7 +493,7 @@ class BulkOperationAjaxHandler {
 			array(
 				'message' => sprintf(
 					/* translators: %1$d: number of files, %2$s: action */
-					__( '%1$d files queued for %2$s.', 'thachpham-offload-cdn-cloudflare-r2' ),
+					__( '%1$d files queued for %2$s.', 'tp-media-offload-edge-cdn' ),
 					$queued,
 					$action
 				),

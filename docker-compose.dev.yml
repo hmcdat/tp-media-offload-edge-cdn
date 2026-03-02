@@ -1,7 +1,7 @@
 services:
   wordpress:
     image: wordpress:latest
-    container_name: cloudflare-r2-offload-cdn-wp
+    container_name: tp-media-offload-edge-cdn-wp
     restart: unless-stopped
     ports:
       - "${WP_PORT:-8888}:80"
@@ -25,24 +25,24 @@ services:
     volumes:
       - wp_data:/var/www/html
       # Mount source files directly for instant changes
-      - ./cloudflare-r2-offload-cdn.php:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/cloudflare-r2-offload-cdn.php:ro
-      - ./uninstall.php:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/uninstall.php:ro
-      - ./readme.txt:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/readme.txt:ro
-      - ./src:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/src:ro
-      - ./assets/css:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/assets/css:ro
-      - ./assets/js:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/assets/js:ro
-      - ./assets/images:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/assets/images:ro
-      - ./languages:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/languages:ro
-      - ./vendor:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn/vendor:ro
+      - ./tp-media-offload-edge-cdn.php:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/tp-media-offload-edge-cdn.php:ro
+      - ./uninstall.php:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/uninstall.php:ro
+      - ./readme.txt:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/readme.txt:ro
+      - ./src:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/src:ro
+      - ./assets/css:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/assets/css:ro
+      - ./assets/js:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/assets/js:ro
+      - ./assets/images:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/assets/images:ro
+      - ./languages:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/languages:ro
+      - ./vendor:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn/vendor:ro
       - ./docker/php.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
     depends_on:
       - mysql
     networks:
-      - cloudflare-r2-offload-cdn-network
+      - tp-media-offload-edge-cdn-network
 
   mysql:
     image: mysql:8.0
-    container_name: cloudflare-r2-offload-cdn-mysql
+    container_name: tp-media-offload-edge-cdn-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -52,13 +52,13 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - cloudflare-r2-offload-cdn-network
+      - tp-media-offload-edge-cdn-network
     command: --authentication-policy=mysql_native_password
 
   phpmyadmin:
     image: phpmyadmin:latest
     platform: linux/amd64
-    container_name: cloudflare-r2-offload-cdn-pma
+    container_name: tp-media-offload-edge-cdn-pma
     restart: unless-stopped
     ports:
       - "${PMA_PORT:-8889}:80"
@@ -69,12 +69,12 @@ services:
     depends_on:
       - mysql
     networks:
-      - cloudflare-r2-offload-cdn-network
+      - tp-media-offload-edge-cdn-network
 
 volumes:
   wp_data:
   db_data:
 
 networks:
-  cloudflare-r2-offload-cdn-network:
+  tp-media-offload-edge-cdn-network:
     driver: bridge

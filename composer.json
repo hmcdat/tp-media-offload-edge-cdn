@@ -1,6 +1,6 @@
 {
-    "name": "thachpn165/cloudflare-r2-offload-cdn",
-    "description": "Offload WordPress media to Cloudflare R2 storage with CDN and image optimization",
+    "name": "thachpn165/tp-media-offload-edge-cdn",
+    "description": "Offload WordPress media to object storage with CDN and image optimization",
     "type": "wordpress-plugin",
     "license": "GPL-2.0+",
     "authors": [

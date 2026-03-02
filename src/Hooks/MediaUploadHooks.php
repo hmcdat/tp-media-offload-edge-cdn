@@ -164,7 +164,7 @@ class MediaUploadHooks implements HookableInterface {
 			'success',
 			sprintf(
 				/* translators: %d: number of files deleted from R2 */
-				__( 'Deleted %d file(s) from R2', 'thachpham-offload-cdn-cloudflare-r2' ),
+				__( 'Deleted %d file(s) from R2', 'tp-media-offload-edge-cdn' ),
 				$deleted_count
 			)
 		);

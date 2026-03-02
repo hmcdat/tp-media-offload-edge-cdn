@@ -43,7 +43,7 @@ class DeactivationHandler implements HookableInterface {
 			'cleanupNonce'   => wp_create_nonce( 'cfr2_cleanup_nonce' ),
 			'confirmMessage' => __(
 				"Do you want to delete all plugin data?\n\n- Click OK to delete all settings, database tables, and media metadata\n- Click Cancel to keep data (you can reinstall later)\n\nNote: Files on R2 storage will not be deleted.",
-				'thachpham-offload-cdn-cloudflare-r2'
+				'tp-media-offload-edge-cdn'
 			),
 		);
 
@@ -95,7 +95,7 @@ JS,
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Permission denied.', 'thachpham-offload-cdn-cloudflare-r2' ) ),
+				array( 'message' => __( 'Permission denied.', 'tp-media-offload-edge-cdn' ) ),
 				403
 			);
 		}
@@ -141,7 +141,7 @@ JS,
 		wp_clear_scheduled_hook( 'cfr2_process_queue' );
 
 		wp_send_json_success(
-			array( 'message' => __( 'Data cleaned.', 'thachpham-offload-cdn-cloudflare-r2' ) )
+			array( 'message' => __( 'Data cleaned.', 'tp-media-offload-edge-cdn' ) )
 		);
 	}
 }

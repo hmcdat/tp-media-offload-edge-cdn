@@ -3,7 +3,7 @@
 services:
   wordpress:
     image: wordpress:latest
-    container_name: cloudflare-r2-offload-cdn-wp
+    container_name: tp-media-offload-edge-cdn-wp
     restart: unless-stopped
     ports:
       - "${WP_PORT:-8888}:80"
@@ -26,16 +26,16 @@ services:
         define('SAVEQUERIES', true);
     volumes:
       - wp_data:/var/www/html
-      - ./dist/cloudflare-r2-offload-cdn:/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn
+      - ./dist/tp-media-offload-edge-cdn:/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn
       - ./docker/php.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
     depends_on:
       - mysql
     networks:
-      - cloudflare-r2-offload-cdn-network
+      - tp-media-offload-edge-cdn-network
 
   mysql:
     image: mysql:8.0
-    container_name: cloudflare-r2-offload-cdn-mysql
+    container_name: tp-media-offload-edge-cdn-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -45,13 +45,13 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - cloudflare-r2-offload-cdn-network
+      - tp-media-offload-edge-cdn-network
     command: --authentication-policy=mysql_native_password
 
   phpmyadmin:
     image: phpmyadmin:latest
     platform: linux/amd64
-    container_name: cloudflare-r2-offload-cdn-pma
+    container_name: tp-media-offload-edge-cdn-pma
     restart: unless-stopped
     ports:
       - "${PMA_PORT:-8889}:80"
@@ -62,12 +62,12 @@ services:
     depends_on:
       - mysql
     networks:
-      - cloudflare-r2-offload-cdn-network
+      - tp-media-offload-edge-cdn-network
 
 volumes:
   wp_data:
   db_data:
 
 networks:
-  cloudflare-r2-offload-cdn-network:
+  tp-media-offload-edge-cdn-network:
     driver: bridge

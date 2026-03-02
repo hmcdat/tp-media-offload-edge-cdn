@@ -55,7 +55,7 @@ class BulkItemProcessor {
 				$item->id,
 				$attachment_id,
 				$filename,
-				__( 'R2 credentials not configured.', 'thachpham-offload-cdn-cloudflare-r2' )
+				__( 'R2 credentials not configured.', 'tp-media-offload-edge-cdn' )
 			);
 		}
 
@@ -146,12 +146,12 @@ class BulkItemProcessor {
 	 */
 	private function format_response_message( array $result, string $action ): string {
 		if ( ! $result['success'] ) {
-			return $result['message'] ?? __( 'Unknown error', 'thachpham-offload-cdn-cloudflare-r2' );
+			return $result['message'] ?? __( 'Unknown error', 'tp-media-offload-edge-cdn' );
 		}
 
 		switch ( $action ) {
 			case QueueAction::OFFLOAD:
-				$message = __( 'Offloaded to R2', 'thachpham-offload-cdn-cloudflare-r2' );
+				$message = __( 'Offloaded to R2', 'tp-media-offload-edge-cdn' );
 				if ( ! empty( $result['thumbnails']['total'] ) ) {
 					$message .= sprintf(
 						' (+%d/%d thumbnails)',
@@ -162,20 +162,20 @@ class BulkItemProcessor {
 				return $message;
 
 			case QueueAction::RESTORE:
-				return __( 'Restored to local', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'Restored to local', 'tp-media-offload-edge-cdn' );
 
 			case QueueAction::DELETE_LOCAL:
 				if ( ! empty( $result['deleted_main'] ) ) {
 					return sprintf(
 						/* translators: %d: number of deleted thumbnail files */
-						__( 'Deleted local files (+%d thumbnails)', 'thachpham-offload-cdn-cloudflare-r2' ),
+						__( 'Deleted local files (+%d thumbnails)', 'tp-media-offload-edge-cdn' ),
 						$result['deleted_thumbs'] ?? 0
 					);
 				}
-				return __( 'No local files to delete', 'thachpham-offload-cdn-cloudflare-r2' );
+				return __( 'No local files to delete', 'tp-media-offload-edge-cdn' );
 
 			default:
-				return $result['message'] ?? __( 'Completed', 'thachpham-offload-cdn-cloudflare-r2' );
+				return $result['message'] ?? __( 'Completed', 'tp-media-offload-edge-cdn' );
 		}
 	}
 }

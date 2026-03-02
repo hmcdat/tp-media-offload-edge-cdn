@@ -1,4 +1,4 @@
-=== ThachPham Offload & CDN for Cloudflare R2 ===
+=== TP Media Offload & Edge CDN ===
 Contributors: thachpn165
 Tags: cloudflare, cdn, media, offload, image optimization
 Requires at least: 6.0
@@ -12,7 +12,7 @@ Offload WordPress media to Cloudflare R2 storage and serve via CDN with automati
 
 == Description ==
 
-**ThachPham Offload & CDN for Cloudflare R2** is a powerful WordPress plugin that offloads your media files to Cloudflare R2 object storage and serves them through Cloudflare's global CDN network with automatic image optimization.
+**TP Media Offload & Edge CDN** is a powerful WordPress plugin that offloads your media files to Cloudflare R2 object storage and serves them through Cloudflare's global CDN network with automatic image optimization.
 
 = Key Features =
 
@@ -62,9 +62,9 @@ Offload WordPress media to Cloudflare R2 storage and serve via CDN with automati
 
 == Installation ==
 
-1. Upload the plugin files to `/wp-content/plugins/thachpham-offload-cdn-cloudflare-r2` or install through WordPress plugins screen
+1. Upload the plugin files to `/wp-content/plugins/tp-media-offload-edge-cdn` or install through WordPress plugins screen
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Go to **ThachPham Offload & CDN for Cloudflare R2** in the admin menu
+3. Go to **TP Media Offload & Edge CDN** in the admin menu
 
 = Initial Setup =
 
@@ -236,7 +236,7 @@ Your data stays between your WordPress site and your Cloudflare account.
 == Support ==
 
 For support, feature requests, or bug reports:
-* Visit [ThachPham.com/contact](https://thachpham.com/contact)
+* Visit [WordPress support forum](https://wordpress.org/support/plugin/tp-media-offload-edge-cdn/)
 * Create an issue on GitHub (coming soon)
 
 == Credits ==

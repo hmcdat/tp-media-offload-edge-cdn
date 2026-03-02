@@ -26,7 +26,7 @@ class SettingsPage {
 	 */
 	public static function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'thachpham-offload-cdn-cloudflare-r2' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'tp-media-offload-edge-cdn' ) );
 		}
 
 		// Add frame-busting headers to prevent clickjacking.
@@ -60,27 +60,27 @@ class SettingsPage {
 	private static function get_tabs(): array {
 		return array(
 			'dashboard'    => array(
-				'label' => __( 'Dashboard', 'thachpham-offload-cdn-cloudflare-r2' ),
+				'label' => __( 'Dashboard', 'tp-media-offload-edge-cdn' ),
 				'icon'  => 'dashicons-dashboard',
 			),
 			'storage'      => array(
-				'label' => __( 'Storage', 'thachpham-offload-cdn-cloudflare-r2' ),
+				'label' => __( 'Storage', 'tp-media-offload-edge-cdn' ),
 				'icon'  => 'dashicons-cloud-saved',
 			),
 			'cdn'          => array(
-				'label' => __( 'CDN', 'thachpham-offload-cdn-cloudflare-r2' ),
+				'label' => __( 'CDN', 'tp-media-offload-edge-cdn' ),
 				'icon'  => 'dashicons-performance',
 			),
 			'offload'      => array(
-				'label' => __( 'Offload', 'thachpham-offload-cdn-cloudflare-r2' ),
+				'label' => __( 'Offload', 'tp-media-offload-edge-cdn' ),
 				'icon'  => 'dashicons-upload',
 			),
 			'bulk-actions' => array(
-				'label' => __( 'Bulk Actions', 'thachpham-offload-cdn-cloudflare-r2' ),
+				'label' => __( 'Bulk Actions', 'tp-media-offload-edge-cdn' ),
 				'icon'  => 'dashicons-update',
 			),
 			'system-info'  => array(
-				'label' => __( 'System Info', 'thachpham-offload-cdn-cloudflare-r2' ),
+				'label' => __( 'System Info', 'tp-media-offload-edge-cdn' ),
 				'icon'  => 'dashicons-info',
 			),
 		);
@@ -110,13 +110,13 @@ class SettingsPage {
 			</ul>
 
 			<div class="cfr2-sidebar-footer">
-				<a href="https://thachpham.com/contact" target="_blank" rel="noopener" class="button cfr2-support-btn">
+				<a href="https://wordpress.org/support/plugin/tp-media-offload-edge-cdn/" target="_blank" rel="noopener" class="button cfr2-support-btn">
 					<span class="dashicons dashicons-sos"></span>
-					<?php esc_html_e( 'Get Support', 'thachpham-offload-cdn-cloudflare-r2' ); ?>
+					<?php esc_html_e( 'Get Support', 'tp-media-offload-edge-cdn' ); ?>
 				</a>
 				<div class="cfr2-plugin-info">
 					<span class="cfr2-version">v<?php echo esc_html( \CFR2_VERSION ); ?></span>
-					<span class="cfr2-author"><?php esc_html_e( 'by', 'thachpham-offload-cdn-cloudflare-r2' ); ?> <a href="https://thachpham.com" target="_blank" rel="noopener">ThachPham</a></span>
+					<span class="cfr2-author"><?php esc_html_e( 'by', 'tp-media-offload-edge-cdn' ); ?> <a href="https://profiles.wordpress.org/thachpn165/" target="_blank" rel="noopener">TP</a></span>
 				</div>
 			</div>
 		</div>
@@ -144,7 +144,7 @@ class SettingsPage {
 
 				<div class="cloudflare-r2-offload-cdn-form-actions">
 					<button type="submit" class="button button-primary cloudflare-r2-offload-cdn-save-btn">
-						<span class="cloudflare-r2-offload-cdn-save-text"><?php esc_html_e( 'Save Settings', 'thachpham-offload-cdn-cloudflare-r2' ); ?></span>
+						<span class="cloudflare-r2-offload-cdn-save-text"><?php esc_html_e( 'Save Settings', 'tp-media-offload-edge-cdn' ); ?></span>
 						<span class="cloudflare-r2-offload-cdn-save-loading spinner"></span>
 					</button>
 				</div>
@@ -152,8 +152,8 @@ class SettingsPage {
 
 			<div class="cloudflare-r2-offload-cdn-disclaimer" style="margin-top: 30px; padding: 15px; background: #f9f9f9; border-left: 4px solid #ccc; color: #666; font-size: 12px;">
 				<p style="margin: 0;">
-					<strong><?php esc_html_e( 'Disclaimer:', 'thachpham-offload-cdn-cloudflare-r2' ); ?></strong>
-					<?php esc_html_e( 'This plugin is an independent, third-party project and is not affiliated with, endorsed by, or officially associated with Cloudflare, Inc. "Cloudflare" and "R2" are trademarks of Cloudflare, Inc. The use of these names is solely for descriptive purposes to indicate compatibility with Cloudflare services.', 'thachpham-offload-cdn-cloudflare-r2' ); ?>
+					<strong><?php esc_html_e( 'Disclaimer:', 'tp-media-offload-edge-cdn' ); ?></strong>
+					<?php esc_html_e( 'This plugin is an independent, third-party project and is not affiliated with, endorsed by, or officially associated with Cloudflare, Inc. "Cloudflare" and "R2" are trademarks of Cloudflare, Inc. The use of these names is solely for descriptive purposes to indicate compatibility with Cloudflare services.', 'tp-media-offload-edge-cdn' ); ?>
 				</p>
 			</div>
 		</div>

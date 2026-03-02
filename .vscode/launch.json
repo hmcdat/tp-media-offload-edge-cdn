@@ -7,7 +7,7 @@
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/var/www/html/wp-content/plugins/cloudflare-r2-offload-cdn": "${workspaceFolder}"
+                "/var/www/html/wp-content/plugins/tp-media-offload-edge-cdn": "${workspaceFolder}"
             }
         },
         {
