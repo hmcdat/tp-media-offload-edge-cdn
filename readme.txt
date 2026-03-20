@@ -4,7 +4,7 @@ Tags: cloudflare, cdn, media, offload, image optimization
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -225,6 +225,11 @@ Yes! The plugin includes WP-CLI commands for bulk operations: `wp cfr2 status`, 
 
 == Changelog ==
 
+= 1.0.2 =
+* Follow-up release for 1.0.1 to correct packaged version metadata in WordPress.org SVN trunk and tag builds.
+* Added stricter release verification so plugin header `Version`, `CFR2_VERSION`, `Stable tag`, and generated SVN artifacts must match the requested release version before deployment.
+* Updated release documentation and changelog metadata for the 1.0.2 rollout.
+
 = 1.0.1 =
 * Fixed plugin activation to create the full R2/CDN settings schema instead of legacy placeholder settings.
 * Added settings normalization and migration so existing installs automatically receive missing keys safely.
@@ -249,6 +254,9 @@ Yes! The plugin includes WP-CLI commands for bulk operations: `wp cfr2 status`, 
 * WP-CLI commands (status, offload, restore, free-space)
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Recommended update. This release republishes the 1.0.1 fixes with corrected release metadata and stronger SVN packaging verification.
 
 = 1.0.1 =
 Recommended update. This release fixes settings schema mismatches, improves validation and queue reliability, and updates release tooling/docs.

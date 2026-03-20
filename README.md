@@ -14,7 +14,7 @@ A production-ready WordPress plugin for offloading media to Cloudflare R2 with a
 - WordPress 6.0+
 - PHP 8.0+
 
-## Features (v1.0.1)
+## Features (v1.0.2)
 
 ### Core Capabilities
 - **R2 Media Offload**: Automatically upload media to Cloudflare R2 with queue-based processing
@@ -79,9 +79,9 @@ A production-ready WordPress plugin for offloading media to Cloudflare R2 with a
 ./scripts/release-svn.sh
 
 # Non-interactive examples
-./scripts/release-svn.sh -v 1.0.1 -m "Release 1.0.1"
-./scripts/release-svn.sh -v 1.0.1 --skip-tests --no-commit
-./scripts/release-svn.sh -v 1.0.1 -u thachpn165
+./scripts/release-svn.sh -v 1.0.2 -m "Release 1.0.2"
+./scripts/release-svn.sh -v 1.0.2 --skip-tests --no-commit
+./scripts/release-svn.sh -v 1.0.2 -u thachpn165
 ```
 
 The release script reads these optional variables from `.env` (or environment):
@@ -160,6 +160,12 @@ src/
 ```
 
 ## Changelog
+
+### 1.0.2
+
+- Follow-up release to publish the 1.0.1 fixes with corrected plugin version metadata in SVN trunk and tag builds.
+- Added stricter release verification so `Version`, `CFR2_VERSION`, `Stable tag`, and packaged SVN artifacts must all match the requested release version before deploy.
+- Updated release examples and changelog metadata for the WordPress.org 1.0.2 rollout.
 
 ### 1.0.1
 
