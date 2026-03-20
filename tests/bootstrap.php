@@ -23,7 +23,9 @@ global $_test_options,
 	$_test_filters,
 	$_test_actions,
 	$_test_actions_count,
-	$_test_current_time;
+	$_test_current_time,
+	$_test_scheduled_events,
+	$_test_rewrite_rules_flushed;
 
 $_test_options                = array();
 $_test_post_meta              = array();
@@ -40,6 +42,8 @@ $_test_filters                = array();
 $_test_actions                = array();
 $_test_actions_count          = array();
 $_test_current_time           = strtotime( '2026-03-02 00:00:00' );
+$_test_scheduled_events       = array();
+$_test_rewrite_rules_flushed  = false;
 
 if ( ! function_exists( 'cfr2_test_reset_wp_state' ) ) {
 	/**
@@ -60,7 +64,9 @@ if ( ! function_exists( 'cfr2_test_reset_wp_state' ) ) {
 			$_test_filters,
 			$_test_actions,
 			$_test_actions_count,
-			$_test_current_time;
+			$_test_current_time,
+			$_test_scheduled_events,
+			$_test_rewrite_rules_flushed;
 
 		$_test_options                = array();
 		$_test_post_meta              = array();
@@ -77,6 +83,8 @@ if ( ! function_exists( 'cfr2_test_reset_wp_state' ) ) {
 		$_test_actions                = array();
 		$_test_actions_count          = array();
 		$_test_current_time           = strtotime( '2026-03-02 00:00:00' );
+		$_test_scheduled_events       = array();
+		$_test_rewrite_rules_flushed  = false;
 	}
 }
 
@@ -108,6 +116,17 @@ if ( ! function_exists( 'get_option' ) ) {
 if ( ! function_exists( 'update_option' ) ) {
 	function update_option( $option, $value ) {
 		global $_test_options;
+		$_test_options[ $option ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_option' ) ) {
+	function add_option( $option, $value = '', $deprecated = '', $autoload = null ) {
+		global $_test_options;
+		if ( array_key_exists( $option, $_test_options ) ) {
+			return false;
+		}
 		$_test_options[ $option ] = $value;
 		return true;
 	}
@@ -424,6 +443,12 @@ if ( ! function_exists( '__' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_html__' ) ) {
+	function esc_html__( $text, $domain = 'default' ) {
+		return __( $text, $domain );
+	}
+}
+
 if ( ! function_exists( '_n' ) ) {
 	function _n( $single, $plural, $number, $domain = 'default' ) {
 		return 1 === (int) $number ? $single : $plural;
@@ -434,6 +459,84 @@ if ( ! function_exists( 'wp_parse_args' ) ) {
 	function wp_parse_args( $args, $defaults = array() ) {
 		$args = (array) $args;
 		return array_merge( $defaults, $args );
+	}
+}
+
+if ( ! function_exists( 'wp_next_scheduled' ) ) {
+	function wp_next_scheduled( $hook ) {
+		global $_test_scheduled_events;
+
+		foreach ( $_test_scheduled_events as $event ) {
+			if ( $hook === $event['hook'] ) {
+				return $event['timestamp'];
+			}
+		}
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'wp_schedule_single_event' ) ) {
+	function wp_schedule_single_event( $timestamp, $hook, $args = array() ) {
+		global $_test_scheduled_events;
+		$_test_scheduled_events[] = array(
+			'timestamp' => (int) $timestamp,
+			'hook'      => $hook,
+			'args'      => $args,
+			'recurring' => false,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_schedule_event' ) ) {
+	function wp_schedule_event( $timestamp, $recurrence, $hook, $args = array() ) {
+		global $_test_scheduled_events;
+		$_test_scheduled_events[] = array(
+			'timestamp'  => (int) $timestamp,
+			'hook'       => $hook,
+			'args'       => $args,
+			'recurring'  => true,
+			'recurrence' => $recurrence,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_clear_scheduled_hook' ) ) {
+	function wp_clear_scheduled_hook( $hook ) {
+		global $_test_scheduled_events;
+		$_test_scheduled_events = array_values(
+			array_filter(
+				$_test_scheduled_events,
+				static fn( array $event ): bool => $hook !== $event['hook']
+			)
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_bloginfo' ) ) {
+	function get_bloginfo( $show = '', $filter = 'raw' ) {
+		if ( 'version' === $show ) {
+			return '6.9';
+		}
+
+		return '';
+	}
+}
+
+if ( ! function_exists( 'flush_rewrite_rules' ) ) {
+	function flush_rewrite_rules( $hard = true ) {
+		global $_test_rewrite_rules_flushed;
+		$_test_rewrite_rules_flushed = true;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_die' ) ) {
+	function wp_die( $message = '', $title = '', $args = array() ) {
+		throw new \RuntimeException( is_string( $message ) ? $message : 'wp_die called' );
 	}
 }
 

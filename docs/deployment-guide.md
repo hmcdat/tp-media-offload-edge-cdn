@@ -505,9 +505,8 @@ tail -f /var/log/wordpress/debug.log
 # Verify settings saved correctly
 wp option get cfr2_settings
 
-# Test AJAX endpoint
-curl -X POST http://example.com/wp-admin/admin-ajax.php \
-  -d "action=cfr2_save_settings&enable_feature=1"
+# Verify canonical keys exist after activation/migration
+wp option get cfr2_settings --format=json | jq '.r2_bucket, .cdn_enabled, .batch_size'
 ```
 
 ### Rollback Plan

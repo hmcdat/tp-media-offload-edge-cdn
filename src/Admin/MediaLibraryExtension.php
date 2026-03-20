@@ -11,9 +11,13 @@ defined( 'ABSPATH' ) || exit;
 
 use ThachPN165\CFR2OffLoad\Constants\TransientKeys;
 use ThachPN165\CFR2OffLoad\Constants\CacheDuration;
+use ThachPN165\CFR2OffLoad\Constants\QueueStatus;
 use ThachPN165\CFR2OffLoad\Interfaces\HookableInterface;
 use ThachPN165\CFR2OffLoad\Services\OffloadService;
+use ThachPN165\CFR2OffLoad\Services\QueueManager;
+use ThachPN165\CFR2OffLoad\Services\QueueScheduler;
 use ThachPN165\CFR2OffLoad\Services\R2Client;
+use ThachPN165\CFR2OffLoad\Services\SettingsValidator;
 use ThachPN165\CFR2OffLoad\Traits\CredentialsHelperTrait;
 
 /**
@@ -314,15 +318,23 @@ class MediaLibraryExtension implements HookableInterface {
 			return $redirect_url;
 		}
 
-		$count = 0;
+		$count         = 0;
+		$queue_manager = new QueueManager();
+
 		foreach ( $post_ids as $attachment_id ) {
+			$queue_action = 'cfr2_bulk_offload' === $action ? 'offload' : 'restore';
+
+			if ( $queue_manager->item_exists( (int) $attachment_id, QueueStatus::PENDING, $queue_action ) ) {
+				continue;
+			}
+
 			global $wpdb;
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table for queue.
 			$wpdb->insert(
 				$wpdb->prefix . 'cfr2_offload_queue',
 				array(
 					'attachment_id' => $attachment_id,
-					'action'        => 'cfr2_bulk_offload' === $action ? 'offload' : 'restore',
+					'action'        => $queue_action,
 					'status'        => 'pending',
 					'created_at'    => current_time( 'mysql' ),
 				),
@@ -332,9 +344,7 @@ class MediaLibraryExtension implements HookableInterface {
 		}
 
 		// Schedule queue processing.
-		if ( ! \as_next_scheduled_action( 'cfr2_process_queue' ) ) {
-			\as_schedule_single_action( time(), 'cfr2_process_queue' );
-		}
+		QueueScheduler::schedule();
 
 		return $this->add_notice_query_arg( $redirect_url, 'cfr2_queued', $count );
 	}
@@ -429,17 +439,24 @@ class MediaLibraryExtension implements HookableInterface {
 			wp_die( esc_html__( 'Permission denied.', 'tp-media-offload-edge-cdn' ) );
 		}
 
-		$credentials = self::get_r2_credentials();
-		$r2          = new R2Client( $credentials );
-		$offload     = new OffloadService( $r2 );
+		$redirect_url  = $this->get_safe_redirect_url();
+		$credentials   = self::get_r2_credentials();
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+		if ( null !== $error_message ) {
+			set_transient( TransientKeys::ERROR_PREFIX . get_current_user_id(), $error_message, CacheDuration::ERROR_TTL );
+			wp_safe_redirect( $this->add_notice_query_arg( $redirect_url, 'cfr2_error' ) );
+			exit;
+		}
+
+		$r2      = new R2Client( $credentials );
+		$offload = new OffloadService( $r2 );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['force'] ) ) {
 			delete_post_meta( $id, '_cfr2_offloaded' );
 		}
 
-		$result       = $offload->offload( $id );
-		$redirect_url = $this->get_safe_redirect_url();
+		$result = $offload->offload( $id );
 
 		if ( $result['success'] ) {
 			wp_safe_redirect( $this->add_notice_query_arg( $redirect_url, 'cfr2_offloaded' ) );
@@ -468,10 +485,17 @@ class MediaLibraryExtension implements HookableInterface {
 			wp_die( esc_html__( 'Permission denied.', 'tp-media-offload-edge-cdn' ) );
 		}
 
-		$credentials  = self::get_r2_credentials();
-		$r2           = new R2Client( $credentials );
-		$offload      = new OffloadService( $r2 );
-		$redirect_url = $this->get_safe_redirect_url();
+		$redirect_url  = $this->get_safe_redirect_url();
+		$credentials   = self::get_r2_credentials();
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+		if ( null !== $error_message ) {
+			set_transient( TransientKeys::ERROR_PREFIX . get_current_user_id(), $error_message, CacheDuration::ERROR_TTL );
+			wp_safe_redirect( $this->add_notice_query_arg( $redirect_url, 'cfr2_error' ) );
+			exit;
+		}
+
+		$r2      = new R2Client( $credentials );
+		$offload = new OffloadService( $r2 );
 
 		$offload->restore( $id );
 
@@ -608,10 +632,16 @@ class MediaLibraryExtension implements HookableInterface {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'tp-media-offload-edge-cdn' ) ) );
 		}
 
-		$credentials = self::get_r2_credentials();
-		$r2          = new R2Client( $credentials );
-		$offload     = new OffloadService( $r2 );
-		$result      = $offload->offload( $id );
+		$credentials   = self::get_r2_credentials();
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
+		}
+
+		$r2      = new R2Client( $credentials );
+		$offload = new OffloadService( $r2 );
+		$result  = $offload->offload( $id );
 
 		if ( $result['success'] ) {
 			wp_send_json_success(

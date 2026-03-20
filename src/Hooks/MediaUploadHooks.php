@@ -14,8 +14,10 @@ use ThachPN165\CFR2OffLoad\Constants\TransientKeys;
 use ThachPN165\CFR2OffLoad\Interfaces\HookableInterface;
 use ThachPN165\CFR2OffLoad\Services\BulkOperationLogger;
 use ThachPN165\CFR2OffLoad\Services\OffloadService;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 use ThachPN165\CFR2OffLoad\Services\R2Client;
 use ThachPN165\CFR2OffLoad\Services\QueueProcessor;
+use ThachPN165\CFR2OffLoad\Services\SettingsValidator;
 use ThachPN165\CFR2OffLoad\Traits\CredentialsHelperTrait;
 
 /**
@@ -30,7 +32,7 @@ class MediaUploadHooks implements HookableInterface {
 	 */
 	public function register_hooks(): void {
 		// Only register auto-offload hook if enabled (avoid overhead when disabled).
-		$settings = get_option( 'cfr2_settings', array() );
+		$settings = PluginSettings::get();
 		if ( ! empty( $settings['auto_offload'] ) ) {
 			// Use wp_generate_attachment_metadata filter instead of add_attachment action
 			// This ensures thumbnails are already generated before offloading.
@@ -61,19 +63,12 @@ class MediaUploadHooks implements HookableInterface {
 	 */
 	private function process_auto_offload( int $attachment_id ): void {
 		// Get settings (auto_offload already checked in register_hooks).
-		$settings = get_option( 'cfr2_settings', array() );
+		$settings = PluginSettings::get();
 
-		// Validate R2 configured.
-		if ( empty( $settings['r2_account_id'] ) || empty( $settings['r2_bucket'] ) ) {
-			BulkOperationLogger::log( $attachment_id, 'error', 'R2 not configured' );
-			return;
-		}
-
-		$credentials = self::get_r2_credentials( $settings );
-
-		// Check if secret key is available.
-		if ( empty( $credentials['secret_access_key'] ) ) {
-			BulkOperationLogger::log( $attachment_id, 'error', 'R2 secret key not configured' );
+		$credentials   = self::get_r2_credentials( $settings );
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+		if ( null !== $error_message ) {
+			BulkOperationLogger::log( $attachment_id, 'error', $error_message );
 			return;
 		}
 
@@ -111,7 +106,7 @@ class MediaUploadHooks implements HookableInterface {
 			return; // Not offloaded, nothing to do.
 		}
 
-		$settings = get_option( 'cfr2_settings', array() );
+		$settings = PluginSettings::get();
 
 		// If sync_delete is enabled, delete from R2.
 		if ( ! empty( $settings['sync_delete'] ) ) {
@@ -135,7 +130,7 @@ class MediaUploadHooks implements HookableInterface {
 			return;
 		}
 
-		$r2 = new R2Client( $credentials );
+		$r2            = new R2Client( $credentials );
 		$deleted_count = 0;
 
 		// Delete main file.

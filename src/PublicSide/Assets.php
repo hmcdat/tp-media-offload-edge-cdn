@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 use ThachPN165\CFR2OffLoad\Interfaces\HookableInterface;
 use ThachPN165\CFR2OffLoad\Constants\NonceActions;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 /**
  * Assets class - handles script and style enqueuing.
@@ -83,9 +84,10 @@ class Assets implements HookableInterface {
 	 * Enqueue public assets.
 	 */
 	public function enqueue_public_assets(): void {
-		// Check if should load public assets.
-		$settings = get_option( 'cfr2_settings', array() );
-		if ( empty( $settings['enable_feature'] ) ) {
+		$settings       = PluginSettings::get();
+		$should_enqueue = ! empty( $settings['cdn_enabled'] ) || ! empty( $settings['r2_public_domain'] );
+
+		if ( ! $should_enqueue ) {
 			return;
 		}
 

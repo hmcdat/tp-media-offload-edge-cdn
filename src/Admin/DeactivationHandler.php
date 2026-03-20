@@ -11,6 +11,7 @@ namespace ThachPN165\CFR2OffLoad\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
+use ThachPN165\CFR2OffLoad\Constants\Settings;
 use ThachPN165\CFR2OffLoad\Database\Schema;
 use ThachPN165\CFR2OffLoad\Interfaces\HookableInterface;
 
@@ -98,16 +99,17 @@ class DeactivationHandler implements HookableInterface {
 		global $wpdb;
 
 		// 1. Securely wipe sensitive data.
-		$settings = get_option( 'cfr2_settings', array() );
+		$settings = get_option( Settings::OPTION_KEY, array() );
 		if ( ! empty( $settings['r2_secret_access_key'] ) ) {
 			$settings['r2_secret_access_key'] = str_repeat( '0', strlen( $settings['r2_secret_access_key'] ) );
 		}
-		if ( ! empty( $settings['api_key'] ) ) {
-			$settings['api_key'] = str_repeat( '0', strlen( $settings['api_key'] ) );
+		if ( ! empty( $settings['cf_api_token'] ) ) {
+			$settings['cf_api_token'] = str_repeat( '0', strlen( $settings['cf_api_token'] ) );
 		}
+		update_option( Settings::OPTION_KEY, $settings );
 
 		// 2. Remove plugin options.
-		delete_option( 'cfr2_settings' );
+		delete_option( Settings::OPTION_KEY );
 		delete_option( 'cfr2_db_version' );
 
 		// 3. Drop custom database tables.

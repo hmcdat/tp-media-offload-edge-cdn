@@ -110,7 +110,7 @@ class R2Client {
 		} catch ( AwsException $e ) {
 			return array(
 				'success' => false,
-				'message' => $e->getAwsErrorMessage() ?: $e->getMessage(),
+				'message' => $this->get_aws_exception_message( $e ),
 			);
 		}
 	}
@@ -146,7 +146,7 @@ class R2Client {
 					'Bucket'      => $this->bucket,
 					'Key'         => $r2_key,
 					'SourceFile'  => $local_path,
-					'ContentType' => mime_content_type( $local_path ) ?: 'application/octet-stream',
+					'ContentType' => mime_content_type( $local_path ) ? mime_content_type( $local_path ) : 'application/octet-stream',
 				)
 			);
 
@@ -158,7 +158,7 @@ class R2Client {
 		} catch ( AwsException $e ) {
 			return array(
 				'success' => false,
-				'message' => $e->getAwsErrorMessage() ?: $e->getMessage(),
+				'message' => $this->get_aws_exception_message( $e ),
 			);
 		}
 	}
@@ -181,7 +181,7 @@ class R2Client {
 		} catch ( AwsException $e ) {
 			return array(
 				'success' => false,
-				'message' => $e->getAwsErrorMessage() ?: $e->getMessage(),
+				'message' => $this->get_aws_exception_message( $e ),
 			);
 		}
 	}
@@ -236,7 +236,7 @@ class R2Client {
 		} catch ( AwsException $e ) {
 			return array(
 				'success' => false,
-				'message' => $e->getAwsErrorMessage() ?: $e->getMessage(),
+				'message' => $this->get_aws_exception_message( $e ),
 			);
 		}
 	}
@@ -249,5 +249,17 @@ class R2Client {
 	 */
 	private function build_r2_url( string $key ): string {
 		return "https://{$this->bucket}.{$this->account_id}.r2.cloudflarestorage.com/{$key}";
+	}
+
+	/**
+	 * Get the best available AWS exception message.
+	 *
+	 * @param AwsException $exception AWS exception instance.
+	 * @return string
+	 */
+	private function get_aws_exception_message( AwsException $exception ): string {
+		$aws_error_message = $exception->getAwsErrorMessage();
+
+		return $aws_error_message ? $aws_error_message : $exception->getMessage();
 	}
 }

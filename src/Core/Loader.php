@@ -38,7 +38,13 @@ class Loader {
 	 * @param int    $args      Number of arguments.
 	 */
 	public function add_action( string $hook, $component, string $callback, int $priority = 10, int $args = 1 ): void {
-		$this->actions[] = compact( 'hook', 'component', 'callback', 'priority', 'args' );
+		$this->actions[] = array(
+			'hook'      => $hook,
+			'component' => $component,
+			'callback'  => $callback,
+			'priority'  => $priority,
+			'args'      => $args,
+		);
 	}
 
 	/**
@@ -51,7 +57,13 @@ class Loader {
 	 * @param int    $args      Number of arguments.
 	 */
 	public function add_filter( string $hook, $component, string $callback, int $priority = 10, int $args = 1 ): void {
-		$this->filters[] = compact( 'hook', 'component', 'callback', 'priority', 'args' );
+		$this->filters[] = array(
+			'hook'      => $hook,
+			'component' => $component,
+			'callback'  => $callback,
+			'priority'  => $priority,
+			'args'      => $args,
+		);
 	}
 
 	/**

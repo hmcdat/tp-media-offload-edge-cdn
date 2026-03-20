@@ -10,6 +10,7 @@ namespace ThachPN165\CFR2OffLoad\Traits;
 defined( 'ABSPATH' ) || exit;
 
 use ThachPN165\CFR2OffLoad\Services\EncryptionService;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 /**
  * Provides shared R2 credentials retrieval logic.
@@ -24,7 +25,7 @@ trait CredentialsHelperTrait {
 	 */
 	protected static function get_r2_credentials( ?array $settings = null ): array {
 		if ( null === $settings ) {
-			$settings = get_option( 'cfr2_settings', array() );
+			$settings = PluginSettings::get();
 		}
 
 		$encryption = EncryptionService::get_instance();
@@ -45,7 +46,7 @@ trait CredentialsHelperTrait {
 	 */
 	protected static function get_cf_api_token( ?array $settings = null ): string {
 		if ( null === $settings ) {
-			$settings = get_option( 'cfr2_settings', array() );
+			$settings = PluginSettings::get();
 		}
 
 		$encryption = EncryptionService::get_instance();

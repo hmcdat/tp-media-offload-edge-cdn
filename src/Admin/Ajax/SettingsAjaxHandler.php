@@ -17,8 +17,11 @@ use ThachPN165\CFR2OffLoad\Constants\Settings;
 use ThachPN165\CFR2OffLoad\Constants\BatchConfig;
 use ThachPN165\CFR2OffLoad\Constants\TransientKeys;
 use ThachPN165\CFR2OffLoad\Services\EncryptionService;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 use ThachPN165\CFR2OffLoad\Services\R2Client;
+use ThachPN165\CFR2OffLoad\Services\SettingsValidator;
 use ThachPN165\CFR2OffLoad\Services\CloudflareAPI;
+use ThachPN165\CFR2OffLoad\Services\URLRewriter;
 
 /**
  * SettingsAjaxHandler class - handles settings-related AJAX requests.
@@ -115,11 +118,18 @@ class SettingsAjaxHandler {
 		);
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
+		$existing = PluginSettings::get();
+
 		// Sanitize settings.
 		$sanitized = $this->sanitize_settings( $input );
 
 		// Update option.
 		$updated = update_option( Settings::OPTION_KEY, $sanitized );
+
+		if ( $existing['cdn_url'] !== $sanitized['cdn_url'] || $existing['cdn_enabled'] !== $sanitized['cdn_enabled'] ) {
+			URLRewriter::clear_availability_cache( (string) $existing['cdn_url'] );
+			URLRewriter::clear_availability_cache( (string) $sanitized['cdn_url'] );
+		}
 
 		if ( false === $updated ) {
 			// Check if genuinely unchanged (use strict comparison).
@@ -162,7 +172,7 @@ class SettingsAjaxHandler {
 			$sanitized['r2_secret_access_key'] = $encryption->encrypt( $secret );
 		} else {
 			// Keep existing value.
-			$existing                          = get_option( Settings::OPTION_KEY, array() );
+			$existing                          = PluginSettings::get();
 			$sanitized['r2_secret_access_key'] = $existing['r2_secret_access_key'] ?? '';
 		}
 
@@ -204,12 +214,12 @@ class SettingsAjaxHandler {
 			$sanitized['cf_api_token'] = $encryption->encrypt( $cf_token );
 		} else {
 			// Keep existing value.
-			$existing                  = get_option( Settings::OPTION_KEY, array() );
+			$existing                  = PluginSettings::get();
 			$sanitized['cf_api_token'] = $existing['cf_api_token'] ?? '';
 		}
 
 		// Worker deployment internal fields (preserve).
-		$existing                        = get_option( Settings::OPTION_KEY, array() );
+		$existing                        = PluginSettings::get();
 		$sanitized['worker_deployed']    = $existing['worker_deployed'] ?? false;
 		$sanitized['worker_name']        = $existing['worker_name'] ?? '';
 		$sanitized['worker_deployed_at'] = $existing['worker_deployed_at'] ?? '';
@@ -259,7 +269,7 @@ class SettingsAjaxHandler {
 
 		// If secret is placeholder, get from saved settings.
 		if ( '********' === $secret_key || empty( $secret_key ) ) {
-			$settings   = get_option( Settings::OPTION_KEY, array() );
+			$settings   = PluginSettings::get();
 			$encryption = EncryptionService::get_instance();
 			$secret_key = $encryption->decrypt( $settings['r2_secret_access_key'] ?? '' );
 		}
@@ -271,19 +281,9 @@ class SettingsAjaxHandler {
 			'bucket'            => $bucket,
 		);
 
-		// Validate all fields present.
-		foreach ( $credentials as $key => $value ) {
-			if ( empty( $value ) ) {
-				wp_send_json_error(
-					array(
-						'message' => sprintf(
-							/* translators: %s: credential field name */
-							__( 'Missing %s', 'tp-media-offload-edge-cdn' ),
-							$key
-						),
-					)
-				);
-			}
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
 		}
 
 		// Test connection.
@@ -314,10 +314,11 @@ class SettingsAjaxHandler {
 			wp_send_json_error( array( 'message' => __( 'CDN URL is required.', 'tp-media-offload-edge-cdn' ) ) );
 		}
 
-		$settings = get_option( Settings::OPTION_KEY, array() );
+		$settings      = PluginSettings::get();
+		$error_message = SettingsValidator::validate_cloudflare_settings( $settings );
 
-		if ( empty( $settings['cf_api_token'] ) || empty( $settings['r2_account_id'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Please configure Cloudflare API Token first.', 'tp-media-offload-edge-cdn' ) ) );
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
 		}
 
 		$encryption = EncryptionService::get_instance();
@@ -350,7 +351,13 @@ class SettingsAjaxHandler {
 			wp_send_json_error( array( 'message' => __( 'Missing zone or record ID.', 'tp-media-offload-edge-cdn' ) ) );
 		}
 
-		$settings   = get_option( Settings::OPTION_KEY, array() );
+		$settings      = PluginSettings::get();
+		$error_message = SettingsValidator::validate_cloudflare_settings( $settings );
+
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
+		}
+
 		$encryption = EncryptionService::get_instance();
 		$api_token  = $encryption->decrypt( $settings['cf_api_token'] ?? '' );
 

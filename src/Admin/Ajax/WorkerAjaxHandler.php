@@ -14,7 +14,10 @@ defined( 'ABSPATH' ) || exit;
 use ThachPN165\CFR2OffLoad\Constants\NonceActions;
 use ThachPN165\CFR2OffLoad\Constants\Settings;
 use ThachPN165\CFR2OffLoad\Services\EncryptionService;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
+use ThachPN165\CFR2OffLoad\Services\SettingsValidator;
 use ThachPN165\CFR2OffLoad\Services\CloudflareAPI;
+use ThachPN165\CFR2OffLoad\Services\URLRewriter;
 use ThachPN165\CFR2OffLoad\Services\WorkerDeployer;
 
 /**
@@ -69,20 +72,11 @@ class WorkerAjaxHandler {
 			return;
 		}
 
-		$settings = get_option( Settings::OPTION_KEY, array() );
+		$settings      = PluginSettings::get();
+		$error_message = SettingsValidator::validate_cloudflare_settings( $settings, true );
 
-		// Validate required fields.
-		if ( empty( $settings['cf_api_token'] ) || empty( $settings['r2_account_id'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Missing Cloudflare API Token or Account ID.', 'tp-media-offload-edge-cdn' ) ) );
-		}
-
-		// Validate R2 bucket is configured.
-		if ( empty( $settings['r2_bucket'] ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'R2 Bucket name is required. Please configure it in the Storage tab first.', 'tp-media-offload-edge-cdn' ),
-				)
-			);
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
 		}
 
 		// Decrypt API token.
@@ -108,6 +102,7 @@ class WorkerAjaxHandler {
 			$settings['worker_name']        = $result['worker_name'];
 			$settings['worker_deployed_at'] = current_time( 'mysql' );
 			update_option( Settings::OPTION_KEY, $settings );
+			URLRewriter::clear_availability_cache( (string) $settings['cdn_url'] );
 
 			wp_send_json_success(
 				array(
@@ -135,7 +130,12 @@ class WorkerAjaxHandler {
 			return;
 		}
 
-		$settings = get_option( Settings::OPTION_KEY, array() );
+		$settings      = PluginSettings::get();
+		$error_message = SettingsValidator::validate_cloudflare_settings( $settings );
+
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
+		}
 
 		$encryption = EncryptionService::get_instance();
 		$api_token  = $encryption->decrypt( $settings['cf_api_token'] ?? '' );
@@ -146,9 +146,11 @@ class WorkerAjaxHandler {
 		$result = $deployer->undeploy();
 
 		if ( $result['success'] ) {
-			$settings['worker_deployed'] = false;
-			unset( $settings['worker_name'], $settings['worker_deployed_at'] );
+			$settings['worker_deployed']    = false;
+			$settings['worker_name']        = '';
+			$settings['worker_deployed_at'] = '';
 			update_option( Settings::OPTION_KEY, $settings );
+			URLRewriter::clear_availability_cache( (string) $settings['cdn_url'] );
 
 			wp_send_json_success( array( 'message' => __( 'Worker removed.', 'tp-media-offload-edge-cdn' ) ) );
 		} else {
@@ -164,11 +166,16 @@ class WorkerAjaxHandler {
 			return;
 		}
 
-		$settings = get_option( Settings::OPTION_KEY, array() );
+		$settings = PluginSettings::get();
 
 		if ( empty( $settings['worker_deployed'] ) ) {
 			wp_send_json_success( array( 'deployed' => false ) );
 			return;
+		}
+
+		$error_message = SettingsValidator::validate_cloudflare_settings( $settings );
+		if ( null !== $error_message ) {
+			wp_send_json_error( array( 'message' => $error_message ) );
 		}
 
 		$encryption = EncryptionService::get_instance();

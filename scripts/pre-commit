@@ -32,7 +32,7 @@ if [ -n "$STAGED_PHP" ]; then
     # Run PHPCS if available
     if [ -f "./vendor/bin/phpcs" ]; then
         echo "Running PHPCS..."
-        ./vendor/bin/phpcs $STAGED_PHP --standard=.phpcs.xml.dist
+        ./vendor/bin/phpcs $STAGED_PHP --standard=phpcs.xml
         if [ $? -ne 0 ]; then
             echo -e "${RED}PHPCS failed. Fix errors or run: composer phpcbf${NC}"
             exit 1

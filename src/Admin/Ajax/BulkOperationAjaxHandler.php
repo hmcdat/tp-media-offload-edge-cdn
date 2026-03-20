@@ -112,7 +112,7 @@ class BulkOperationAjaxHandler {
 			)
 		);
 
-		$queued = $this->enqueue_items( $attachments, QueueAction::RESTORE );
+		$queued = $this->enqueue_items( $attachments, QueueAction::RESTORE, true );
 		$this->send_queue_success( $queued, 'restore' );
 	}
 
@@ -132,7 +132,7 @@ class BulkOperationAjaxHandler {
 			 WHERE local_exists = 1"
 		);
 
-		$queued = $this->enqueue_items( $attachments, QueueAction::DELETE_LOCAL );
+		$queued = $this->enqueue_items( $attachments, QueueAction::DELETE_LOCAL, true );
 		$this->send_queue_success( $queued, 'local deletion' );
 	}
 
@@ -439,8 +439,9 @@ class BulkOperationAjaxHandler {
 				continue;
 			}
 
-			$this->queue_manager->enqueue( $attachment_id, $action );
-			++$queued;
+			if ( $this->queue_manager->enqueue( $attachment_id, $action ) ) {
+				++$queued;
+			}
 		}
 		delete_transient( TransientKeys::BULK_CANCELLED );
 

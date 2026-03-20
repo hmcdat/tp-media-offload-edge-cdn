@@ -10,6 +10,7 @@ namespace ThachPN165\CFR2OffLoad\Core;
 defined( 'ABSPATH' ) || exit;
 
 use ThachPN165\CFR2OffLoad\Database\Schema;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 /**
  * Activator class - runs on plugin activation.
@@ -46,16 +47,8 @@ class Activator {
 			wp_schedule_event( time(), 'weekly', 'cfr2_cleanup_stats' );
 		}
 
-		// Create default options.
-		if ( false === get_option( 'cfr2_settings' ) ) {
-			add_option(
-				'cfr2_settings',
-				array(
-					'enable_feature' => 0,
-					'api_key'        => '',
-				)
-			);
-		}
+		// Create default settings with the canonical schema.
+		PluginSettings::initialize();
 
 		// Flush rewrite rules.
 		flush_rewrite_rules();

@@ -16,6 +16,7 @@ use ThachPN165\CFR2OffLoad\Admin\MediaLibraryExtension;
 use ThachPN165\CFR2OffLoad\Admin\DeactivationHandler;
 use ThachPN165\CFR2OffLoad\PublicSide\Assets;
 use ThachPN165\CFR2OffLoad\Database\Schema;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 use ThachPN165\CFR2OffLoad\Hooks\MediaUploadHooks;
 use ThachPN165\CFR2OffLoad\Services\URLRewriter;
 use ThachPN165\CFR2OffLoad\Integrations\WooCommerceIntegration;
@@ -42,6 +43,7 @@ class Plugin {
 	private function __construct() {
 		$this->loader = new Loader();
 		Schema::maybe_upgrade();
+		PluginSettings::migrate_if_needed();
 		$this->define_hooks();
 		$this->loader->run();
 	}

@@ -60,9 +60,7 @@ class OffloadService {
 		);
 
 		// Schedule queue processor if not already scheduled.
-		if ( ! wp_next_scheduled( 'cfr2_process_queue' ) ) {
-			wp_schedule_single_event( time(), 'cfr2_process_queue' );
-		}
+		QueueScheduler::schedule();
 
 		return true;
 	}
@@ -82,7 +80,7 @@ class OffloadService {
 			return array(
 				'success' => false,
 				/* translators: %s: MIME type */
-				'message' => sprintf( __( 'MIME type "%s" is not allowed for offload', 'tp-media-offload-edge-cdn' ), $mime ?: 'unknown' ),
+				'message' => sprintf( __( 'MIME type "%s" is not allowed for offload', 'tp-media-offload-edge-cdn' ), $mime ? $mime : 'unknown' ),
 			);
 		}
 
@@ -239,7 +237,7 @@ class OffloadService {
 	 * @return bool True if files were deleted, false otherwise.
 	 */
 	private function maybe_delete_local_files( int $attachment_id, string $file_path, array $thumb_results ): bool {
-		$settings = get_option( Settings::OPTION_KEY, array() );
+		$settings = PluginSettings::get();
 
 		// Default to keeping local files if setting not set.
 		if ( ! empty( $settings['keep_local_files'] ) ) {
@@ -309,13 +307,7 @@ class OffloadService {
 			array( '%d', '%s', '%s', '%s' )
 		);
 
-		if ( function_exists( 'as_next_scheduled_action' ) ) {
-			if ( ! \as_next_scheduled_action( 'cfr2_process_queue' ) ) {
-				\as_schedule_single_action( time(), 'cfr2_process_queue' );
-			}
-		} elseif ( ! wp_next_scheduled( 'cfr2_process_queue' ) ) {
-				wp_schedule_single_event( time(), 'cfr2_process_queue' );
-		}
+		QueueScheduler::schedule();
 
 		return true;
 	}

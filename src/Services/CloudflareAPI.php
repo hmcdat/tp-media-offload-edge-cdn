@@ -137,6 +137,37 @@ class CloudflareAPI {
 	}
 
 	/**
+	 * Resolve zone ID for a hostname by stripping labels until a zone matches.
+	 *
+	 * @param string $host Hostname to resolve.
+	 * @return string|null Zone ID or null when not found.
+	 */
+	public function get_zone_id_for_host( string $host ): ?string {
+		$host = strtolower( trim( $host ) );
+		if ( '' === $host ) {
+			return null;
+		}
+
+		$labels      = array_values( array_filter( explode( '.', $host ) ) );
+		$label_count = count( $labels );
+
+		if ( $label_count < 2 ) {
+			return null;
+		}
+
+		for ( $index = 0; $index <= $label_count - 2; ++$index ) {
+			$candidate = implode( '.', array_slice( $labels, $index ) );
+			$zone_id   = $this->get_zone_id( $candidate );
+
+			if ( ! empty( $zone_id ) ) {
+				return $zone_id;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Delete Worker.
 	 *
 	 * @param string $worker_name Worker name.
@@ -244,19 +275,14 @@ class CloudflareAPI {
 
 		$cdn_host = $parsed['host'];
 
-		// Extract base domain for zone lookup.
-		$parts       = explode( '.', $cdn_host );
-		$base_domain = implode( '.', array_slice( $parts, -2 ) );
-
-		// Get zone ID.
-		$zone_id = $this->get_zone_id( $base_domain );
+		$zone_id = $this->get_zone_id_for_host( $cdn_host );
 		if ( ! $zone_id ) {
 			return array(
 				'success' => false,
 				'message' => sprintf(
 					/* translators: %s: domain name */
 					__( 'Domain "%s" not found in your Cloudflare account', 'tp-media-offload-edge-cdn' ),
-					$base_domain
+					$cdn_host
 				),
 			);
 		}
@@ -381,12 +407,12 @@ class CloudflareAPI {
 		// Parse the response.
 		$data   = $response['data']['viewer']['accounts'][0]['workersInvocationsAdaptive'] ?? array();
 		$result = array(
-			'success'            => true,
-			'total_requests'     => 0,
-			'total_errors'       => 0,
-			'cpu_time_p50_avg'   => 0,
-			'cpu_time_p99_avg'   => 0,
-			'daily'              => array(),
+			'success'          => true,
+			'total_requests'   => 0,
+			'total_errors'     => 0,
+			'cpu_time_p50_avg' => 0,
+			'cpu_time_p99_avg' => 0,
+			'daily'            => array(),
 		);
 
 		if ( empty( $data ) ) {
@@ -401,8 +427,8 @@ class CloudflareAPI {
 			$result['total_requests'] += (int) ( $entry['sum']['requests'] ?? 0 );
 			$result['total_errors']   += (int) ( $entry['sum']['errors'] ?? 0 );
 
-			$cpu_p50 = (float) ( $entry['quantiles']['cpuTimeP50'] ?? 0 );
-			$cpu_p99 = (float) ( $entry['quantiles']['cpuTimeP99'] ?? 0 );
+			$cpu_p50      = (float) ( $entry['quantiles']['cpuTimeP50'] ?? 0 );
+			$cpu_p99      = (float) ( $entry['quantiles']['cpuTimeP99'] ?? 0 );
 			$cpu_p50_sum += $cpu_p50;
 			$cpu_p99_sum += $cpu_p99;
 

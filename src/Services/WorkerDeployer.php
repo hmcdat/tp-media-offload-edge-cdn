@@ -62,7 +62,7 @@ class WorkerDeployer {
 		);
 
 		// Step 2: Get Worker script.
-		$script = $this->get_worker_script( $config );
+		$script = $this->get_worker_script();
 
 		// Step 3: Upload script (creates Worker if not exists).
 		$bindings = $this->get_bindings( $config );
@@ -152,12 +152,12 @@ class WorkerDeployer {
 	/**
 	 * Generate Worker script from template.
 	 *
-	 * @param array $config Configuration array.
 	 * @return string Worker script.
 	 */
-	private function get_worker_script( array $config ): string {
+	private function get_worker_script(): string {
 		$template_path = \CFR2_PATH . 'src/Templates/worker-script.js';
-		$script        = file_get_contents( $template_path );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local bundled template file.
+		$script = file_get_contents( $template_path );
 
 		// Replace placeholders.
 		$script = str_replace( '{{VERSION}}', \CFR2_VERSION, $script );
@@ -200,25 +200,25 @@ class WorkerDeployer {
 	 * @return array Result array.
 	 */
 	private function configure_route( string $domain ): array {
-		// Extract base domain for zone lookup.
-		$parts       = explode( '.', $domain );
-		$base_domain = implode( '.', array_slice( $parts, -2 ) );
+		$parsed = wp_parse_url( $domain );
+		$host   = ! empty( $parsed['host'] ) ? $parsed['host'] : $domain;
+		$host   = trim( $host, '/' );
 
 		// Get zone ID.
-		$zone_id = $this->api->get_zone_id( $base_domain );
+		$zone_id = $this->api->get_zone_id_for_host( $host );
 		if ( ! $zone_id ) {
 			return array(
 				'success' => false,
 				'message' => sprintf(
 					/* translators: %s: domain name */
 					__( 'Zone not found for domain: %s', 'tp-media-offload-edge-cdn' ),
-					$base_domain
+					$host
 				),
 			);
 		}
 
 		// Configure route pattern.
-		$pattern = "{$domain}/*";
+		$pattern = "{$host}/*";
 		$result  = $this->api->configure_route( $zone_id, $pattern, $this->worker_name );
 
 		if ( $result['success'] ) {

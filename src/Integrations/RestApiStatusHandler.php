@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 use WP_REST_Request;
 use WP_REST_Response;
 use ThachPN165\CFR2OffLoad\Constants\MetaKeys;
-use ThachPN165\CFR2OffLoad\Constants\Settings;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 /**
  * RestApiStatusHandler class - handles read-only status endpoints.
@@ -36,10 +36,10 @@ class RestApiStatusHandler {
 			);
 		}
 
-		$is_offloaded  = (bool) get_post_meta( $attachment_id, MetaKeys::OFFLOADED, true );
-		$r2_url        = get_post_meta( $attachment_id, MetaKeys::R2_URL, true );
-		$file_path     = get_attached_file( $attachment_id );
-		$local_exists  = is_string( $file_path ) && '' !== $file_path && file_exists( $file_path );
+		$is_offloaded = (bool) get_post_meta( $attachment_id, MetaKeys::OFFLOADED, true );
+		$r2_url       = get_post_meta( $attachment_id, MetaKeys::R2_URL, true );
+		$file_path    = get_attached_file( $attachment_id );
+		$local_exists = is_string( $file_path ) && '' !== $file_path && file_exists( $file_path );
 
 		// Get local URL.
 		$local_url = null;
@@ -49,7 +49,7 @@ class RestApiStatusHandler {
 
 		// Build CDN URL if enabled.
 		$cdn_url  = null;
-		$settings = get_option( Settings::OPTION_KEY, array() );
+		$settings = PluginSettings::get();
 		$cdn_base = ! empty( $settings['cdn_url'] ) ? rtrim( (string) $settings['cdn_url'], '/' ) : '';
 		$r2_base  = ! empty( $settings['r2_public_domain'] ) ? rtrim( (string) $settings['r2_public_domain'], '/' ) : '';
 
@@ -81,9 +81,9 @@ class RestApiStatusHandler {
 
 		return new WP_REST_Response(
 			array(
-				'id'          => $attachment_id,
-				'offloaded'   => $is_offloaded,
-				'urls'        => array(
+				'id'           => $attachment_id,
+				'offloaded'    => $is_offloaded,
+				'urls'         => array(
 					'local' => $local_url,
 					'r2'    => $r2_url ? $r2_url : null,
 					'cdn'   => $cdn_url,

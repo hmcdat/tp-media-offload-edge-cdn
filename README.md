@@ -14,7 +14,7 @@ A production-ready WordPress plugin for offloading media to Cloudflare R2 with a
 - WordPress 6.0+
 - PHP 8.0+
 
-## Features (v1.0.0)
+## Features (v1.0.1)
 
 ### Core Capabilities
 - **R2 Media Offload**: Automatically upload media to Cloudflare R2 with queue-based processing
@@ -158,6 +158,22 @@ src/
 ├── Traits/             # Shared behavior
 └── PublicSide/         # Frontend assets
 ```
+
+## Changelog
+
+### 1.0.1
+
+- Fixed settings initialization so new installs create the full R2/CDN schema instead of legacy placeholder keys.
+- Added settings normalization and migration to safely backfill missing keys on existing sites.
+- Hardened runtime validation for admin AJAX, WP-CLI, media actions, and queue processing to show clear configuration errors before calling R2 or Cloudflare APIs.
+- Fixed queue scheduling fallback logic for environments without Action Scheduler and reduced duplicate queue entries in bulk/media workflows.
+- Improved Cloudflare zone detection for custom domains, corrected Worker route generation, and invalidated CDN availability cache when CDN settings change.
+- Cleaned up uninstall/deactivation handling for current encrypted secrets and aligned plugin docs/tooling with the live codebase.
+- Resolved PHPCS violations, repaired PHPMD and pre-commit tooling, and added regression tests for settings migration and queue scheduling.
+
+### 1.0.0
+
+- Initial release.
 
 ## License
 

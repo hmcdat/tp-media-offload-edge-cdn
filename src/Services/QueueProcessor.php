@@ -35,7 +35,7 @@ class QueueProcessor {
 		global $wpdb;
 
 		// Get batch size from settings.
-		$settings   = get_option( 'cfr2_settings', array() );
+		$settings   = PluginSettings::get();
 		$batch_size = min( (int) ( $settings['batch_size'] ?? self::BATCH_SIZE ), self::MAX_BATCH_SIZE );
 
 		// Check if cancelled.
@@ -60,8 +60,27 @@ class QueueProcessor {
 			return;
 		}
 
-		$credentials = self::get_r2_credentials();
-		if ( empty( $credentials['account_id'] ) ) {
+		$credentials   = self::get_r2_credentials();
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+
+		if ( null !== $error_message ) {
+			foreach ( $items as $item ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom queue table.
+				$wpdb->update(
+					$wpdb->prefix . 'cfr2_offload_queue',
+					array(
+						'status'        => 'failed',
+						'error_message' => $error_message,
+						'processed_at'  => current_time( 'mysql' ),
+					),
+					array( 'id' => $item->id ),
+					array( '%s', '%s', '%s' ),
+					array( '%d' )
+				);
+
+				BulkOperationLogger::log( (int) $item->attachment_id, 'error', $error_message );
+			}
+
 			return;
 		}
 
@@ -124,7 +143,7 @@ class QueueProcessor {
 		);
 
 		if ( $remaining > 0 && ! get_transient( 'cfr2_bulk_cancelled' ) ) {
-			\as_schedule_single_action( time() + 5, 'cfr2_process_queue' );
+			QueueScheduler::schedule( 5 );
 		}
 	}
 

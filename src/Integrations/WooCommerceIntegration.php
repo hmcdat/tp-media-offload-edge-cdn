@@ -10,6 +10,7 @@ namespace ThachPN165\CFR2OffLoad\Integrations;
 defined( 'ABSPATH' ) || exit;
 
 use ThachPN165\CFR2OffLoad\Interfaces\HookableInterface;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 use ThachPN165\CFR2OffLoad\Traits\CdnUrlRewriterTrait;
 
 /**
@@ -30,7 +31,7 @@ class WooCommerceIntegration implements HookableInterface {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->settings = get_option( 'cfr2_settings', array() );
+		$this->settings = PluginSettings::get();
 	}
 
 	/**

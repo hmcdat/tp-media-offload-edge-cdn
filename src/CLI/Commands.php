@@ -14,6 +14,7 @@ use WP_CLI\Utils;
 use ThachPN165\CFR2OffLoad\Services\OffloadService;
 use ThachPN165\CFR2OffLoad\Services\R2Client;
 use ThachPN165\CFR2OffLoad\Services\BulkProgressService;
+use ThachPN165\CFR2OffLoad\Services\SettingsValidator;
 use ThachPN165\CFR2OffLoad\Traits\CredentialsHelperTrait;
 use ThachPN165\CFR2OffLoad\Constants\MetaKeys;
 
@@ -72,6 +73,8 @@ class Commands {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function status( $args, $assoc_args ): void {
+		unset( $args, $assoc_args );
+
 		$counts = $this->progress_service->get_counts();
 		$total  = $counts['offloaded'] + $counts['not_offloaded'];
 
@@ -135,6 +138,10 @@ class Commands {
 			WP_CLI::error( 'Specify attachment ID or "all".' );
 		}
 
+		if ( ! $dry_run ) {
+			$this->ensure_r2_credentials_configured();
+		}
+
 		if ( 'all' === $target ) {
 			$this->offload_all( $dry_run, $batch_size );
 		} else {
@@ -175,6 +182,10 @@ class Commands {
 
 		if ( ! $target ) {
 			WP_CLI::error( 'Specify attachment ID or "all".' );
+		}
+
+		if ( ! $dry_run ) {
+			$this->ensure_r2_credentials_configured();
 		}
 
 		if ( 'all' === $target ) {
@@ -222,6 +233,17 @@ class Commands {
 			$this->free_space_all( $dry_run, $batch_size );
 		} else {
 			$this->free_space_single( (int) $target, $dry_run );
+		}
+	}
+
+	/**
+	 * Ensure required R2 credentials exist before invoking R2-backed operations.
+	 */
+	private function ensure_r2_credentials_configured(): void {
+		$error_message = SettingsValidator::validate_r2_credentials( $this->get_r2_credentials() );
+
+		if ( null !== $error_message ) {
+			WP_CLI::error( $error_message );
 		}
 	}
 

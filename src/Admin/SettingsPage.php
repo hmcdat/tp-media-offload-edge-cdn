@@ -13,6 +13,7 @@ use ThachPN165\CFR2OffLoad\Admin\Tabs\CdnTab;
 use ThachPN165\CFR2OffLoad\Admin\Tabs\OffloadTab;
 use ThachPN165\CFR2OffLoad\Admin\Tabs\BulkActionsTab;
 use ThachPN165\CFR2OffLoad\Admin\Tabs\SystemInfoTab;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +36,7 @@ class SettingsPage {
 			header( 'Content-Security-Policy: frame-ancestors \'self\'' );
 		}
 
-		$settings = get_option( 'cfr2_settings', array() );
+		$settings = PluginSettings::get();
 		$tabs     = self::get_tabs();
 		?>
 		<div class="wrap cloudflare-r2-offload-cdn-settings-wrap">

@@ -10,6 +10,7 @@ namespace ThachPN165\CFR2OffLoad\Admin\Tabs;
 defined( 'ABSPATH' ) || exit;
 
 use ThachPN165\CFR2OffLoad\Services\EncryptionService;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 use ThachPN165\CFR2OffLoad\Services\R2Client;
 
 /**
@@ -21,7 +22,7 @@ class SystemInfoTab {
 	 * Render the system info tab.
 	 */
 	public static function render(): void {
-		$settings = get_option( 'cfr2_settings', array() );
+		$settings = PluginSettings::get();
 		?>
 		<div class="cloudflare-r2-offload-cdn-tab-content" id="tab-system-info">
 			<h2><?php esc_html_e( 'System Information', 'tp-media-offload-edge-cdn' ); ?></h2>
@@ -236,7 +237,7 @@ class SystemInfoTab {
 		$lines[] = '';
 
 		// PHP Extensions.
-		$lines[]    = '## PHP Extensions';
+		$lines[] = '## PHP Extensions';
 		// Note: gd/imagick not needed - image processing done by Cloudflare Workers.
 		$extensions = array( 'curl', 'openssl', 'json', 'mbstring' );
 		foreach ( $extensions as $ext ) {

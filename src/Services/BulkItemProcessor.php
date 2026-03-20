@@ -49,13 +49,15 @@ class BulkItemProcessor {
 		$file_path     = get_attached_file( $attachment_id );
 		$filename      = $file_path ? basename( $file_path ) : "ID: {$attachment_id}";
 
-		$credentials = self::get_r2_credentials();
-		if ( empty( $credentials['secret_access_key'] ) ) {
+		$credentials   = self::get_r2_credentials();
+		$error_message = SettingsValidator::validate_r2_credentials( $credentials );
+
+		if ( null !== $error_message ) {
 			return $this->handle_failure(
 				$item->id,
 				$attachment_id,
 				$filename,
-				__( 'R2 credentials not configured.', 'tp-media-offload-edge-cdn' )
+				$error_message
 			);
 		}
 

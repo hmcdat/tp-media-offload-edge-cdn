@@ -18,6 +18,7 @@ use ThachPN165\CFR2OffLoad\Admin\Ajax\ActivityAjaxHandler;
 use ThachPN165\CFR2OffLoad\Constants\Settings;
 use ThachPN165\CFR2OffLoad\Constants\BatchConfig;
 use ThachPN165\CFR2OffLoad\Interfaces\HookableInterface;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 /**
  * AdminMenu class - handles admin menu registration and AJAX delegation.
@@ -135,7 +136,7 @@ class AdminMenu implements HookableInterface {
 			Settings::OPTION_KEY,
 			array(
 				'type'              => 'array',
-				'default'           => $this->get_default_settings(),
+				'default'           => PluginSettings::defaults(),
 				'sanitize_callback' => array( $this, 'sanitize_registered_settings' ),
 			)
 		);
@@ -149,10 +150,10 @@ class AdminMenu implements HookableInterface {
 	 */
 	public function sanitize_registered_settings( $input ): array {
 		if ( ! is_array( $input ) ) {
-			return $this->get_default_settings();
+			return PluginSettings::defaults();
 		}
 
-		$existing = get_option( Settings::OPTION_KEY, array() );
+		$existing = PluginSettings::get();
 		$merged   = wp_parse_args( $input, $existing );
 
 		$secret_value = array_key_exists( 'r2_secret_access_key', $input )
@@ -191,26 +192,6 @@ class AdminMenu implements HookableInterface {
 	 * @return array Default settings.
 	 */
 	private function get_default_settings(): array {
-		return array(
-			'r2_account_id'        => '',
-			'r2_access_key_id'     => '',
-			'r2_secret_access_key' => '',
-			'r2_bucket'            => '',
-			'r2_public_domain'     => '',
-			'auto_offload'         => 0,
-			'batch_size'           => BatchConfig::DEFAULT_SIZE,
-			'keep_local_files'     => 1,
-			'sync_delete'          => 0,
-			'cdn_enabled'          => 0,
-			'cdn_url'              => '',
-			'quality'              => 85,
-			'image_format'         => 'webp',
-			'smart_sizes'          => 0,
-			'content_max_width'    => 800,
-			'cf_api_token'         => '',
-			'worker_deployed'      => false,
-			'worker_name'          => '',
-			'worker_deployed_at'   => '',
-		);
+		return PluginSettings::defaults();
 	}
 }

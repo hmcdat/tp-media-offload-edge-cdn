@@ -46,7 +46,7 @@ class URLRewriter implements HookableInterface {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->settings      = get_option( 'cfr2_settings', array() );
+		$this->settings      = PluginSettings::get();
 		$this->cdn_available = $this->check_cdn_availability();
 	}
 
@@ -118,7 +118,11 @@ class URLRewriter implements HookableInterface {
 
 		// Fallback: stored local URL.
 		$local_url = get_post_meta( $attachment_id, '_cfr2_local_url', true );
-		return $local_url ?: $url;
+		if ( ! empty( $local_url ) ) {
+			return $local_url;
+		}
+
+		return $url;
 	}
 
 	/**
@@ -143,10 +147,10 @@ class URLRewriter implements HookableInterface {
 	/**
 	 * Rewrite image src with size.
 	 *
-	 * @param array|false $image Image data or false.
-	 * @param int         $attachment_id Attachment ID.
+	 * @param array|false  $image Image data or false.
+	 * @param int          $attachment_id Attachment ID.
 	 * @param string|int[] $size Requested size.
-	 * @param bool        $icon Whether to use icon.
+	 * @param bool         $icon Whether to use icon.
 	 * @return array|false Modified image data.
 	 */
 	public function rewrite_image_src( $image, int $attachment_id, $size, bool $icon ) {
@@ -185,11 +189,11 @@ class URLRewriter implements HookableInterface {
 	/**
 	 * Generate responsive srcset with CDN URLs.
 	 *
-	 * @param array $sources Srcset sources.
-	 * @param array $size_array Size array.
+	 * @param array  $sources Srcset sources.
+	 * @param array  $size_array Size array.
 	 * @param string $image_src Image src.
-	 * @param array $image_meta Image metadata.
-	 * @param int   $attachment_id Attachment ID.
+	 * @param array  $image_meta Image metadata.
+	 * @param int    $attachment_id Attachment ID.
 	 * @return array Modified sources.
 	 */
 	public function generate_srcset( $sources, $size_array, $image_src, $image_meta, $attachment_id ): array {
@@ -249,8 +253,8 @@ class URLRewriter implements HookableInterface {
 	/**
 	 * Add lazy loading attribute.
 	 *
-	 * @param array    $attr Attributes.
-	 * @param \WP_Post $attachment Attachment post.
+	 * @param array        $attr Attributes.
+	 * @param \WP_Post     $attachment Attachment post.
 	 * @param string|int[] $size Size.
 	 * @return array Modified attributes.
 	 */
@@ -405,9 +409,9 @@ class URLRewriter implements HookableInterface {
 		$content_max_width = absint( $this->settings['content_max_width'] ?? 800 );
 
 		// Calculate smart sizes based on content width.
-		// Mobile: 100vw (full width)
-		// Tablet: min(100vw, content_max_width)
-		// Desktop: content_max_width (capped)
+		// Mobile: 100vw (full width).
+		// Tablet: min(100vw, content_max_width).
+		// Desktop: content_max_width (capped).
 		$sizes_parts = array();
 
 		// Mobile breakpoint (up to 640px viewport).
@@ -420,9 +424,9 @@ class URLRewriter implements HookableInterface {
 			$sizes_parts[] = '(max-width: 1024px) 100vw';
 		}
 
-		// Desktop: use content max width or original image width (whichever is smaller).
-		$desktop_size   = min( $content_max_width, $original_width );
-		$sizes_parts[]  = "{$desktop_size}px";
+		// Desktop: use content max width or original image width, whichever is smaller.
+		$desktop_size  = min( $content_max_width, $original_width );
+		$sizes_parts[] = "{$desktop_size}px";
 
 		return implode( ', ', $sizes_parts );
 	}
@@ -457,7 +461,7 @@ class URLRewriter implements HookableInterface {
 		}
 
 		// Check cache.
-		$cache_key = 'cfr2_cdn_available';
+		$cache_key = self::get_availability_cache_key( (string) $this->settings['cdn_url'] );
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached ) {
@@ -485,8 +489,29 @@ class URLRewriter implements HookableInterface {
 
 	/**
 	 * Force CDN availability check (clear cache).
+	 *
+	 * @param string $cdn_url Optional CDN URL whose cache should be purged.
 	 */
-	public static function clear_availability_cache(): void {
+	public static function clear_availability_cache( string $cdn_url = '' ): void {
 		delete_transient( 'cfr2_cdn_available' );
+
+		if ( '' === $cdn_url ) {
+			$settings = PluginSettings::get();
+			$cdn_url  = (string) ( $settings['cdn_url'] ?? '' );
+		}
+
+		if ( '' !== $cdn_url ) {
+			delete_transient( self::get_availability_cache_key( $cdn_url ) );
+		}
+	}
+
+	/**
+	 * Get cache key for CDN availability.
+	 *
+	 * @param string $cdn_url CDN URL.
+	 * @return string
+	 */
+	private static function get_availability_cache_key( string $cdn_url ): string {
+		return 'cfr2_cdn_available_' . md5( rtrim( $cdn_url, '/' ) );
 	}
 }

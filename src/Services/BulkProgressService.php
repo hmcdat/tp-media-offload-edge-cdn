@@ -174,7 +174,7 @@ class BulkProgressService {
 			$pending_items[] = array(
 				'id'            => (int) $item->id,
 				'attachment_id' => (int) $item->attachment_id,
-				'filename'      => $filename ?: "ID: {$item->attachment_id}",
+				'filename'      => $filename ? $filename : "ID: {$item->attachment_id}",
 				'action'        => $item->action,
 				'status'        => $item->status,
 				'created_at'    => $item->created_at,

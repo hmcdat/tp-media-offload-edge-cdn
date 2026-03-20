@@ -69,22 +69,36 @@ class QueueManager {
 	/**
 	 * Check if item exists in queue.
 	 *
-	 * @param int    $attachment_id Attachment ID.
-	 * @param string $status        Queue status.
+	 * @param int         $attachment_id Attachment ID.
+	 * @param string      $status        Queue status.
+	 * @param string|null $action        Optional queue action.
 	 * @return bool True if exists, false otherwise.
 	 */
-	public function item_exists( int $attachment_id, string $status = QueueStatus::PENDING ): bool {
+	public function item_exists( int $attachment_id, string $status = QueueStatus::PENDING, ?string $action = null ): bool {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$exists = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}cfr2_offload_queue
-				 WHERE attachment_id = %d AND status = %s",
-				$attachment_id,
-				$status
-			)
-		);
+		if ( null !== $action ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$exists = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT id FROM {$wpdb->prefix}cfr2_offload_queue
+					 WHERE attachment_id = %d AND status = %s AND action = %s",
+					$attachment_id,
+					$status,
+					$action
+				)
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$exists = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT id FROM {$wpdb->prefix}cfr2_offload_queue
+					 WHERE attachment_id = %d AND status = %s",
+					$attachment_id,
+					$status
+				)
+			);
+		}
 
 		return null !== $exists;
 	}
@@ -113,9 +127,9 @@ class QueueManager {
 		$result = $wpdb->update(
 			$wpdb->prefix . 'cfr2_offload_queue',
 			array(
-				'status'       => QueueStatus::COMPLETED,
+				'status'        => QueueStatus::COMPLETED,
 				'error_message' => $message,
-				'processed_at' => current_time( 'mysql' ),
+				'processed_at'  => current_time( 'mysql' ),
 			),
 			array( 'id' => $item_id ),
 			array( '%s', '%s', '%s' ),

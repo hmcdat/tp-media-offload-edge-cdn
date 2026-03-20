@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 use ThachPN165\CFR2OffLoad\Services\StatsTracker;
 use ThachPN165\CFR2OffLoad\Services\CloudflareAPI;
 use ThachPN165\CFR2OffLoad\Services\EncryptionService;
+use ThachPN165\CFR2OffLoad\Services\PluginSettings;
 
 /**
  * StatsWidget class - displays usage statistics.
@@ -32,7 +33,7 @@ class StatsWidget {
 	 * Render stats widget content.
 	 */
 	public static function render(): void {
-		$settings    = get_option( 'cfr2_settings', array() );
+		$settings    = PluginSettings::get();
 		$account_id  = $settings['r2_account_id'] ?? '';
 		$worker_name = $settings['worker_name'] ?? '';
 		$is_deployed = ! empty( $settings['worker_deployed'] );
@@ -124,7 +125,7 @@ class StatsWidget {
 	 * @return array Chart data.
 	 */
 	public static function get_chart_data(): array {
-		$settings  = get_option( 'cfr2_settings', array() );
+		$settings  = PluginSettings::get();
 		$analytics = self::get_cached_analytics( $settings );
 		$daily     = $analytics['daily'] ?? array();
 

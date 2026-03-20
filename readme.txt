@@ -4,7 +4,7 @@ Tags: cloudflare, cdn, media, offload, image optimization
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -225,6 +225,15 @@ Yes! The plugin includes WP-CLI commands for bulk operations: `wp cfr2 status`, 
 
 == Changelog ==
 
+= 1.0.1 =
+* Fixed plugin activation to create the full R2/CDN settings schema instead of legacy placeholder settings.
+* Added settings normalization and migration so existing installs automatically receive missing keys safely.
+* Improved validation across settings save, Worker actions, WP-CLI, media actions, and queue processing with clearer configuration errors.
+* Hardened queue scheduling fallback for sites without Action Scheduler and reduced duplicate queue items in bulk operations.
+* Fixed Cloudflare zone detection for custom domains, corrected Worker route generation, and cleared CDN availability cache when CDN settings change.
+* Updated uninstall/deactivation cleanup to handle current encrypted secrets correctly.
+* Cleaned up PHPCS violations, repaired PHPMD and pre-commit tooling, refreshed bundled documentation, and added regression tests.
+
 = 1.0.0 =
 * Initial release
 * R2 storage integration with AWS SDK
@@ -240,6 +249,9 @@ Yes! The plugin includes WP-CLI commands for bulk operations: `wp cfr2 status`, 
 * WP-CLI commands (status, offload, restore, free-space)
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Recommended update. This release fixes settings schema mismatches, improves validation and queue reliability, and updates release tooling/docs.
 
 = 1.0.0 =
 Initial release. Please backup your database before installing.

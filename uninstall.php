@@ -11,20 +11,22 @@
 // Exit if not called by WordPress.
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
+use ThachPN165\CFR2OffLoad\Constants\Settings;
+
 global $wpdb;
 
 // 1. Securely wipe sensitive data before deletion.
-$cfr2_settings = get_option( 'cfr2_settings', array() );
+$cfr2_settings = get_option( Settings::OPTION_KEY, array() );
 if ( ! empty( $cfr2_settings['r2_secret_access_key'] ) ) {
 	$cfr2_settings['r2_secret_access_key'] = str_repeat( '0', strlen( $cfr2_settings['r2_secret_access_key'] ) );
 }
-if ( ! empty( $cfr2_settings['api_key'] ) ) {
-	$cfr2_settings['api_key'] = str_repeat( '0', strlen( $cfr2_settings['api_key'] ) );
+if ( ! empty( $cfr2_settings['cf_api_token'] ) ) {
+	$cfr2_settings['cf_api_token'] = str_repeat( '0', strlen( $cfr2_settings['cf_api_token'] ) );
 }
-update_option( 'cfr2_settings', $cfr2_settings );
+update_option( Settings::OPTION_KEY, $cfr2_settings );
 
 // 2. Remove plugin options.
-delete_option( 'cfr2_settings' );
+delete_option( Settings::OPTION_KEY );
 delete_option( 'cfr2_db_version' );
 
 // 3. Drop custom database tables.

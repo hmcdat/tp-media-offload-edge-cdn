@@ -39,7 +39,7 @@ class BulkOperationLogger {
 
 		// Add new log entry.
 		$logs[] = array(
-			'timestamp'     => current_time( 'timestamp' ),
+			'timestamp'     => time(),
 			'attachment_id' => $attachment_id,
 			'filename'      => $filename,
 			'status'        => $status,

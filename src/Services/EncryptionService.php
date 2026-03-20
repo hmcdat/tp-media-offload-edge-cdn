@@ -66,8 +66,8 @@ class EncryptionService {
 			return '';
 		}
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		if ( ! $this->is_auth_key_valid() ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Fallback transport encoding for legacy installs without auth salts.
 			return base64_encode( $plaintext );
 		}
 
